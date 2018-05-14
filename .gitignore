@@ -1,7 +1,2 @@
 # Ignore everything not added
-* 
-
-# Don't ignore git
-!.gitignore
-!/data/*
-!/model/*
+.*
