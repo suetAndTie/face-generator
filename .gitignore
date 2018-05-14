@@ -3,5 +3,5 @@
 
 # Don't ignore git
 !.gitignore
-!/data
-!/model
+!/data/*
+!/model/*
