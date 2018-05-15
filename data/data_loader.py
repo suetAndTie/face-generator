@@ -6,16 +6,10 @@ Modified from https://github.com/carpedm20/BEGAN-pytorch/blob/master/data_loader
 
 
 import os
-import numpy as np
-from glob import glob
-from PIL import Image
-from tqdm import tqdm
-
 import torch
 from torchvision import transforms
-import torchvision.datasets as dset
 
-from folder import ImageFolder
+from data.folder import ImageFolder
 
 def get_loader(root, split, batch_size, scale_size, num_workers=2, shuffle=True):
     dataset_name = os.path.basename(root)
