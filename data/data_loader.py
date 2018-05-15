@@ -2,6 +2,7 @@
 data_loader.py
 
 Modified from https://github.com/carpedm20/BEGAN-pytorch/blob/master/data_loader.py
+https://github.com/cs230-stanford/cs230-code-examples/blob/master/pytorch/vision/model/data_loader.py
 '''
 
 
@@ -11,26 +12,38 @@ from torchvision import transforms
 
 from data.folder import ImageFolder
 
-def get_loader(root, split, batch_size, scale_size, num_workers=2, shuffle=True):
+# Train set transformation
+train_transformer = transforms.Compose([
+    transforms.CenterCrop(160),
+    # transforms.RandomHorizontalFlip(),
+    transforms.Resize(128),
+    transforms.ToTensor()
+])
+
+# Val and test set transformations
+eval_transformer = transforms.Compose([
+    transforms.CenterCrop(160),
+    transforms.Resize(128),
+    transforms.ToTensor()
+])
+
+def fetch_dataloader(root, split, params, shuffle=True):
     dataset_name = os.path.basename(root)
     image_root = os.path.join(root, 'splits', split)
 
-    if dataset_name in ['CelebA']:
-        dataset = ImageFolder(root=image_root, transform=transforms.Compose([
-            transforms.CenterCrop(160),
-            transforms.Scale(scale_size),
-            transforms.ToTensor(),
-            #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        ]))
+    if dataset_name == 'CelebA' and split == 'train':
+        dataset = ImageFolder(root=image_root, transform=train_transformer)
+    elif dataset_name == 'CelebA':
+        dataset = ImageFolder(root=image_root, transform=eval_transformer)
     else:
         dataset = ImageFolder(root=image_root, transform=transforms.Compose([
-            transforms.Scale(scale_size),
+            transforms.Resize(128),
             transforms.ToTensor(),
             #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ]))
 
-    data_loader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=shuffle, num_workers=int(num_workers))
-    data_loader.shape = [int(num) for num in dataset[0][0].size()]
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size=params.batch_size,
+                                                shuffle=shuffle, num_workers=params.num_workers)
+    # data_loader.shape = [int(num) for num in dataset[0][0].size()]
 
     return data_loader

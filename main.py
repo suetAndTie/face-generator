@@ -1,6 +1,7 @@
 '''
-main.py
+main.ph
 '''
+
 import torch
 from model.began import *
 

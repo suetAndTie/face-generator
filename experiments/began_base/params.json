@@ -1,0 +1,18 @@
+{
+    "learning_rate":1e-3,
+    "batch_size":32,
+    "num_epochs":10,
+    "save_epochs":10,
+    "dropout_rate":0.8,
+    "num_channels":32,
+    "save_summary_steps":100,
+    "num_workers":4,
+    "ngpu":1,
+
+    "h":128,
+    "n":128,
+
+    "elu_alpha":1,
+    "began_gamma":0.5,
+    "began_lambda_k":0.001
+}
