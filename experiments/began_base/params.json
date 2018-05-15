@@ -8,6 +8,8 @@
     "save_summary_steps":100,
     "num_workers":4,
     "ngpu":1,
+    "crop_size":160,
+    "img_size":128,
 
     "h":128,
     "n":128,
