@@ -14,7 +14,7 @@
 
     "num_workers":4,
     "ngpu":1,
-    "crop_size":160,
+    "crop_size":156,
     "img_size":128,
 
     "h":128,

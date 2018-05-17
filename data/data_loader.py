@@ -33,9 +33,9 @@ def fetch_dataloader(root, split, params, shuffle=True):
 
     if dataset_name == 'CelebA':
         dataset = ImageFolder(root=image_root, transform=transforms.Compose([
-                                transforms.CenterCrop(params.crop_size), # Center crop to 160x160
+                                transforms.CenterCrop((params.crop_size, params.crop_size)), # Center crop to 160x160
                                 # transforms.RandomHorizontalFlip(),
-                                transforms.Resize(params.img_size), # Resize to 128x128
+                                transforms.Resize((params.img_size, params.img_size)), # Resize to 128x128
                                 transforms.ToTensor(),
                                 #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                 ]))
