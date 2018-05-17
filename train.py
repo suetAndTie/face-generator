@@ -61,9 +61,6 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             # Reset the noise vectors
             z_G.data.normal_(0,1)
 
-            # convert to torch Variables
-            #train_batch, labels_batch = Variable(train_batch), Variable(labels_batch)
-
             # compute model output and loss
             g_img = g(z_G)
 
@@ -72,12 +69,12 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             g_loss = g.loss_fn(g_img, g_img_passed)
             d_loss = d.loss_fn(r_img, g_img, r_img_passed, g_img_passed)
-            b_converge = began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
+            b_converge = began.began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
 
             # clear previous gradients, compute gradients of all variables wrt loss
             g_optimizer.zero_grad()
             d_optimizer.zero_grad()
-            g_loss.backward()
+            g_loss.backward(retain_graph=True)
             d_loss.backward()
             # performs updates using calculated gradients
             g_optimizer.step()
@@ -90,19 +87,18 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
                 # g_img = g_img.data.cpu().numpy()
                 # r_img_passed = r_img_passed.cpu().numpy()
                 # g_img_passed = g_img_passed.cpu().numpy()
-                #
+
                 # compute all metrics on this batch
-                # summary_batch = {metric:metrics[metric](g_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
-                #                  for metric in metrics}
-                summary_batch['g_loss'] = g_loss.data[0]
-                summary_batch['d_loss'] = d_loss.data[0]
-                summary_batch['b_converge'] = b_converge.data[0]
+                summary_batch = {metric:metrics[metric](g_img, g_img, r_img_passed, g_img_passed) for metric in metrics}
+                summary_batch['g_loss'] = g_loss.data
+                summary_batch['d_loss'] = d_loss.data
+                summary_batch['b_converge'] = b_converge.data
                 summ.append(summary_batch)
 
             # update the average loss
-            g_loss_avg.update(g_loss.data[0])
-            d_loss_avg.update(d_loss.data[0])
-            b_converge_avg.update(b_converge.data[0])
+            g_loss_avg.update(g_loss.data)
+            d_loss_avg.update(d_loss.data)
+            b_converge_avg.update(b_converge.data)
 
             t.set_postfix(g_loss='{:05.3f}'.format(g_loss_avg()),
                             d_loss='{:05.3f}'.format(d_loss_avg()),
@@ -165,7 +161,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         # If best_eval, best_save_path
         if is_best:
             logging.info("- Found new best convergence")
-            best_val_acc = val_acc
+            best_b_converge = b_converge
 
             # Save best val metrics in a json file in the model directory
             best_json_path = os.path.join(model_dir, "metrics_val_best_weights.json")

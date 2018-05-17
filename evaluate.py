@@ -48,7 +48,7 @@ def evaluate(g, d, dataloader, metrics, params):
         r_img = batch_data[0]
 
         # move to GPU if available
-        if params.cuda: r_img = r_imge.cuda(async=True)
+        if params.cuda: r_img = r_img.cuda(async=True)
         # fetch the next evaluation batch
         #data_batch, labels_batch = Variable(data_batch), Variable(labels_batch)
 
@@ -67,11 +67,11 @@ def evaluate(g, d, dataloader, metrics, params):
         # labels_batch = labels_batch.data.cpu().numpy()
 
         # compute all metrics on this batch
-        # summary_batch = {metric: metrics[metric](output_batch, labels_batch)
-        #                  for metric in metrics}
-        summary_batch['g_loss'] = g_loss.data[0]
-        summary_batch['d_loss'] = d_loss.data[0]
-        summary_batch['b_converge'] = b_converge.data[0]
+        summary_batch = {metric: metrics[metric](r_img, g_img, r_img_passed, g_img_passed)
+                          for metric in metrics}
+        summary_batch['g_loss'] = g_loss.data
+        summary_batch['d_loss'] = d_loss.data
+        summary_batch['b_converge'] = b_converge.data
         summ.append(summary_batch)
 
     # compute mean of all metrics in summary

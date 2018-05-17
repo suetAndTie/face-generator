@@ -191,9 +191,9 @@ class BeganDiscriminator(nn.Module):
         d_loss = d_r_loss - self.began_k * d_g_loss
 
         # Update began_k value
-        balance = (self.params.began_gamma * d_r_loss - d_g_loss).data[0]
-        self.began_k = min(max(began_k + self.params.began_lambda_k * balance, 0), 1)
-        return
+        balance = (self.params.began_gamma * d_r_loss - d_g_loss).data
+        self.began_k = min(max(self.began_k + self.params.began_lambda_k * balance, 0), 1)
+        return d_loss
 
 
 # Metrics
