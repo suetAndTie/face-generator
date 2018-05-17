@@ -141,11 +141,11 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
 
         # Evaluate for one epoch on validation set
-        val_metrics = evaluate(g, d, val_dataloader, metrics, params)
+        #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
 
-        b_converge = val_metrics['b_converge']
-        is_best = b_converge <= best_b_converge
-
+        #b_converge = val_metrics['b_converge']
+        #is_best = b_converge <= best_b_converge
+        is_best = True
         # Save weights
         if (epoch % params.save_epochs == 0 or epoch == params.num_epochs - 1):
             util.save_checkpoint({'epoch': epoch + 1,
@@ -159,17 +159,17 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    checkpoint=model_dir)
 
         # If best_eval, best_save_path
-        if is_best:
-            logging.info("- Found new best convergence")
-            best_b_converge = b_converge
+        #if is_best:
+        #    logging.info("- Found new best convergence")
+        #    #best_b_converge = b_converge
 
-            # Save best val metrics in a json file in the model directory
-            best_json_path = os.path.join(model_dir, "metrics_val_best_weights.json")
-            util.save_dict_to_json(val_metrics, best_json_path)
+        #    # Save best val metrics in a json file in the model directory
+        #    best_json_path = os.path.join(model_dir, "metrics_val_best_weights.json")
+        #    util.save_dict_to_json(val_metrics, best_json_path)
 
         # Save latest val metrics in a json file in the model directory
-        last_json_path = os.path.join(model_dir, "metrics_val_last_weights.json")
-        util.save_dict_to_json(val_metrics, last_json_path)
+        #last_json_path = os.path.join(model_dir, "metrics_val_last_weights.json")
+        #util.save_dict_to_json(val_metrics, last_json_path)
 
 
 if __name__ == '__main__':
