@@ -1,7 +1,7 @@
 '''
 evaluate.py
 
-Based on https://github.com/cs230-stanford/cs230-code-examples/blob/master/pytorch/vision/evaluate.py
+Based on https://github.com/cs230-stanford/cs230-code-examples/blob/master/pytorch/vision/
 '''
 
 import argparse
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model
-    g = BeganGenerator(OPTIONS).cuda() if params.cuda else BeganGenerator(OPTIONS)
-    d = BeganDiscriminator(OPTIONS).cuda() if params.cuda else BeganDiscriminator(OPTIONS)
+    g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
+    d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
 
     loss_fn = net.loss_fn
     metrics = net.metrics
