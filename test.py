@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 import util
-from model.began import *
+import model.began as began
 import data.data_loader as data_loader
 import torchvision.utils as torch_utils
 
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     if params.cuda: torch.cuda.manual_seed(42)
 
     # Define the model
-    g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
-    d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
+    g = began.BeganGenerator(params).cuda() if params.cuda else began.BeganGenerator(params)
+    d = bega.BeganDiscriminator(params).cuda() if params.cuda else began.BeganDiscriminator(params)
 
 
     # Reload weights from the saved file
