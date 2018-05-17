@@ -52,9 +52,10 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
-        for i, r_img in enumerate(dataloader):
+        for i, train_batch in enumerate(dataloader):
+            real_img = train_batch[0]
             # move to GPU if available
-            if params.cuda: train_batch = train_batch.cuda(async=True)
+            if params.cuda: real_img = real_img.cuda(async=True)
 
             # Reset the noise vectors
             z_G.data.normal_(0,1)

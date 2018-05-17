@@ -44,7 +44,8 @@ def evaluate(g, d, dataloader, metrics, params):
     if (params.cuda): z_fixed = z_fixed.cuda()
 
     # compute metrics over the dataset
-    for r_img in dataloader:
+    for batch_data in dataloader:
+        r_img = batch_data[0]
 
         # move to GPU if available
         if params.cuda: r_img = r_imge.cuda(async=True)
