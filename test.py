@@ -48,7 +48,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     json_path = os.path.join(args.model_dir, 'params.json')
     assert os.path.isfile(json_path), "No json configuration file found at {}".format(json_path)
-    params = utils.Params(json_path)
+    params = util.Params(json_path)
 
     # use GPU if available
     params.cuda = torch.cuda.is_available()     # use GPU is available
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
 
     # Reload weights from the saved file
-    utils.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
+    util.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
 
     # test
     f_img = test(g, d, params)
