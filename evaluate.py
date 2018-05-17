@@ -11,9 +11,9 @@ import os
 import numpy as np
 import torch
 from torch.autograd import Variable
-import utils
-import model.net as net
-import model.data_loader as data_loader
+import util
+from model.began import *
+import data.data_loader as data_loader
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/64x64_SIGNS', help="Directory containing the dataset")
@@ -41,7 +41,7 @@ def evaluate(g, d, dataloader, metrics, params):
     summ = []
 
     z_fixed = torch.FloatTensor(params.batch_size, params.h).normal_(0,1)
-    if (params.cuda) z_fixed = z_fixed.cuda()
+    if (params.cuda): z_fixed = z_fixed.cuda()
 
     # compute metrics over the dataset
     for r_img in dataloader:
@@ -57,7 +57,7 @@ def evaluate(g, d, dataloader, metrics, params):
         g_img_passed = d(g_img)
         r_img_passed = d(r_img)
 
-        g_loss = g.loss_fn(g_img, g_img_passed):
+        g_loss = g.loss_fn(g_img, g_img_passed)
         d_loss = d.loss_fn(r_img, g_img, r_img_passed, g_img_passed)
         b_converge = began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
 

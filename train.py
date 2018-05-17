@@ -68,7 +68,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             g_img_passed = d(g_img)
             r_img_passed = d(r_img)
 
-            g_loss = g.loss_fn(g_img, g_img_passed):
+            g_loss = g.loss_fn(g_img, g_img_passed)
             d_loss = d.loss_fn(r_img, g_img, r_img_passed, g_img_passed)
             b_converge = began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
 
@@ -104,7 +104,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             t.set_postfix(g_loss='{:05.3f}'.format(g_loss_avg()),
                             d_loss='{:05.3f}'.format(d_loss_avg()),
-                            converge='{:05.3f}'.format(b_converge_avg())
+                            converge='{:05.3f}'.format(b_converge_avg()))
             t.update()
 
     # compute mean of all metrics in summary

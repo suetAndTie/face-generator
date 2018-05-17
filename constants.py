@@ -1,7 +1,0 @@
-'''
-constants.py
-'''
-
-OPTIONS = {
-    
-}
