@@ -8,7 +8,7 @@ BEGAN Model https://arxiv.org/pdf/1703.10717.pdf
 
 import torch
 import torch.nn as nn
-import model.model_util as util
+import model.model_util as model_util
 
 class BeganGenerator(nn.Module):
     def __init__(self, params):
@@ -18,7 +18,7 @@ class BeganGenerator(nn.Module):
             # Dim: batch_size x h
             nn.Linear(self.params.h, self.params.n * 8 * 8),
             # Dim: batch_size x (n * 8 * 8)
-            util.View(-1, self.params.n, 8, 8),
+            model_util.View(-1, self.params.n, 8, 8),
             # Dim: batch_size x n x 8 x 8
             nn.Conv2d(self.params.n, self.params.n, kernel_size=3, stride=1, padding=1),
             nn.ELU(self.params.elu_alpha, inplace=True),
@@ -122,7 +122,7 @@ class BeganDiscriminator(nn.Module):
             nn.Conv2d(self.params.n, self.params.n, kernel_size=3, stride=1, padding=1),
             nn.ELU(self.params.elu_alpha, inplace=True),
             # Dim: batch_size x n x 8 x 8
-            util.View(-1, self.params.n * 8 * 8),
+            model_util.View(-1, self.params.n * 8 * 8),
             # Dim: batch_size x (n * 8 * 8)
             nn.Linear(self.params.n * 8 * 8, self.params.h),
             # Dim: batch_size x h
@@ -131,7 +131,7 @@ class BeganDiscriminator(nn.Module):
             # Dim: batch_size x h
             nn.Linear(self.params.h, self.params.n * 8 * 8),
             # Dim: batch_size x (n * 8 * 8)
-            util.View(-1, self.params.n, 8, 8),
+            model_util.View(-1, self.params.n, 8, 8),
             # Dim: batch_size x n x 8 x 8
             nn.Conv2d(self.params.n, self.params.n, kernel_size=3, stride=1, padding=1),
             nn.ELU(self.params.elu_alpha, inplace=True),
