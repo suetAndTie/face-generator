@@ -78,7 +78,7 @@ class BeganDiscriminator(nn.Module):
         super(BeganDiscriminator, self).__init__()
         self.params = params
         self.began_k = 0
-        self.main = nn.Sequential(
+        self.encoder = nn.Sequential(
             ########## ENCODER ##########
             # Dim: batch_size x 3 (RGB Channels) x 128 x 128
             nn.Conv2d(3, self.params.n, kernel_size=3, stride=1, padding=1),
@@ -126,7 +126,8 @@ class BeganDiscriminator(nn.Module):
             # Dim: batch_size x (n * 8 * 8)
             nn.Linear(self.params.n * 8 * 8, self.params.h),
             # Dim: batch_size x h
-
+        )
+        self.decoder = nn.Sequential(
             ########## DENCODER ##########
             # Dim: batch_size x h
             nn.Linear(self.params.h, self.params.n * 8 * 8),
@@ -180,7 +181,8 @@ class BeganDiscriminator(nn.Module):
         if input.is_cuda and self.params.ngpu > 1:
             output = nn.parallel.data_parallel(self.main, input, range(self.params.ngpu))
         else:
-            output = self.main(input)
+            h = self.encoder(input)
+            output = self.decoder(h)
         return output
 
     def loss_fn(self, r_img, g_img, r_img_passed, g_img_passed):
