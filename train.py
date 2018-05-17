@@ -19,8 +19,8 @@ import data.data_loader as data_loader
 from evaluate import evaluate
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/base_model', help="Directory containing params.json")
+parser.add_argument('--data_dir', default='data/CelebA/', help="Directory containing the dataset")
+parser.add_argument('--model_dir', default='experiments/began_base', help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
                     training")  # 'best' or 'train'
@@ -195,21 +195,22 @@ if __name__ == '__main__':
     logging.info("Loading the datasets...")
 
     # fetch dataloaders
-    train_dl = data_loader.fetch_dataloader('data', 'train', params, shuffle=True)
-    val_dl = data_loader.fetch_dataloader('data', 'valid', params, shuffle=False)
+    train_dl = data_loader.fetch_dataloader(args.data_dir, 'train', params, shuffle=True)
+    val_dl = data_loader.fetch_dataloader(args.data_dir, 'valid', params, shuffle=False)
 
     logging.info("- done.")
 
     # Define the model and optimizer
-    g = BeganGenerator(OPTIONS).cuda() if params.cuda else BeganGenerator(OPTIONS)
-    d = BeganDiscriminator(OPTIONS).cuda() if params.cuda else BeganDiscriminator(OPTIONS)
+    g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
+    d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
     g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate)
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate)
 
+    
     # fetch loss function and metrics
     #metrics = net.metrics
 
     # Train the model
-    logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    train_and_evaluate(g, d, train_dl, val_dl, g_optimizer, d_optimizer,
-                        metrics, params, args.model_dir, args.restore_file)
+    #logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
+    #train_and_evaluate(g, d, train_dl, val_dl, g_optimizer, d_optimizer,
+    #                    metrics, params, args.model_dir, args.restore_file)
