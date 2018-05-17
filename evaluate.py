@@ -16,8 +16,8 @@ from model.began import *
 import data.data_loader as data_loader
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/64x64_SIGNS', help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='experiments/base_model', help="Directory containing params.json")
+parser.add_argument('--data_dir', default='data/CelebA', help="Directory containing the dataset")
+parser.add_argument('--model_dir', default='experiments/began_base', help="Directory containing params.json")
 parser.add_argument('--restore_file', default='best', help="name of the file in --model_dir \
                      containing weights to load")
 
