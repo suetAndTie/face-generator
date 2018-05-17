@@ -203,10 +203,12 @@ if __name__ == '__main__':
     # Define the model and optimizer
     g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
     d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
-    g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate)
-    d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate)
+    g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate,
+                                betas=(params.beta1,params.beta2))
+    d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
+                                betas=(params.beta1,params.beta2))
 
-    
+
     # fetch loss function and metrics
     #metrics = net.metrics
 
