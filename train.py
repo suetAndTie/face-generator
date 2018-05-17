@@ -14,7 +14,7 @@ from torch.autograd import Variable
 from tqdm import tqdm
 
 import util
-from model.began import *
+import model.began as began
 import data.data_loader as data_loader
 from evaluate import evaluate
 
@@ -39,7 +39,8 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     """
 
     # set model to training mode
-    model.train()
+    g.train()
+    d.train()
 
     # summary for current training loop and a running average object for loss
     summ = []
@@ -53,9 +54,9 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
         for i, train_batch in enumerate(dataloader):
-            real_img = train_batch[0]
+            r_img = train_batch[0]
             # move to GPU if available
-            if params.cuda: real_img = real_img.cuda(async=True)
+            if params.cuda: r_img = r_img.cuda(async=True)
 
             # Reset the noise vectors
             z_G.data.normal_(0,1)
@@ -113,7 +114,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
     logging.info("- Train metrics: " + metrics_string)
 
-def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_optimizer, params, model_dir,
+def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_optimizer, metrics, params, model_dir,
                        restore_file=None):
     """Train the model and evaluate every epoch.
     Args:
@@ -202,8 +203,8 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
-    g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
-    d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
+    g = began.BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
+    d = began.BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
     g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate,
                                 betas=(params.beta1,params.beta2))
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
@@ -211,9 +212,9 @@ if __name__ == '__main__':
 
 
     # fetch loss function and metrics
-    #metrics = net.metrics
+    metrics = began.metrics
 
     # Train the model
-    #logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-    #train_and_evaluate(g, d, train_dl, val_dl, g_optimizer, d_optimizer,
-    #                    metrics, params, args.model_dir, args.restore_file)
+    logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
+    train_and_evaluate(g, d, train_dl, val_dl, g_optimizer, d_optimizer,
+                       metrics, params, args.model_dir, args.restore_file)

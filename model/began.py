@@ -63,7 +63,7 @@ class BeganGenerator(nn.Module):
         )
 
     def forward(self, input):
-        if input.is_cuda and self.opt['ngpu'] > 1:
+        if input.is_cuda and self.params.ngpu > 1:
             output = nn.parallel.data_parallel(self.main, input, range(self.opt['ngpu']))
         else:
             output = self.main(input)
