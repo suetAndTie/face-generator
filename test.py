@@ -37,7 +37,7 @@ def test(g, d, params, num):
     g.eval()
     d.eval()
 
-    z_fixed = torch.FloatTensor(num, params.h).normal_(0,1)
+    z_fixed = torch.FloatTensor(num, params.h, device=params.device).normal_(0,1)
     return g(z_fixed)
 
 
@@ -52,15 +52,17 @@ if __name__ == '__main__':
     params = util.Params(json_path)
 
     # use GPU if available
-    params.cuda = torch.cuda.is_available()     # use GPU is available
+    params.cuda = torch.cuda.is_available()
+    if params.ngpu > 0 and params.cuda: params.device = torch.device('cuda')
+    else: params.device = torch.device('cpu')
 
     # Set the random seed for reproducible experiments
     torch.manual_seed(42)
     if params.cuda: torch.cuda.manual_seed(42)
 
     # Define the model
-    g = began.BeganGenerator(params) if params.cuda else began.BeganGenerator(params)
-    d = began.BeganDiscriminator(params) if params.cuda else began.BeganDiscriminator(params)
+    g = began.BeganGenerator(params).to(params.device)
+    d = began.BeganDiscriminator(params).to(params.device)
 
 
     # Reload weights from the saved file
