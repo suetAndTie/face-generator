@@ -49,7 +49,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     d_loss_avg = util.RunningAverage()
     b_converge_avg = util.RunningAverage()
 
-    z_G = torch.FloatTensor(params.batch_size, params.h).to(params.device)
+    z_G = torch.FloatTensor(params.batch_size, params.h, device=params.device)
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
@@ -62,24 +62,30 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             # Reset the noise vectors
             z_G.normal_(0,1)
 
-            # compute model output and loss
+            ########## Train Discriminator ##########
             g_img = g(z_G)
 
-            g_img_passed = d(g_img)
+            g_img_passed = d(g_img.detach())
             r_img_passed = d(r_img)
 
-            g_loss = g.loss_fn(g_img, g_img_passed)
             d_loss = d.loss_fn(r_img, g_img, r_img_passed, g_img_passed)
-            b_converge = began.began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
+            d_optimizer.zero_grad()
+            d_loss.backward()
+            d_optimizer.step()
+
+            ########## Train Generator ##########
+            g_img_passed = d(g_img)
+            g_loss = g.loss_fn(g_img, g_img_passed)
+
 
             # clear previous gradients, compute gradients of all variables wrt loss
             g_optimizer.zero_grad()
-            d_optimizer.zero_grad()
-            g_loss.backward(retain_graph=True)
-            d_loss.backward()
-            # performs updates using calculated gradients
-            g_optimizer.step()
-            d_optimizer.step()
+            g_loss.backward()
+            g_optimizer.step()# performs updates using calculated gradients
+
+            # calcualte began convergence measure
+            b_converge = began.began_convergence(r_img, g_img, r_img_passed, g_img_passed, params.began_gamma)
+
 
             # Evaluate summaries only once in a while
             if i % params.save_summary_steps == 0:
