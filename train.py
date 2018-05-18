@@ -199,13 +199,17 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
-    g = began.BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
-    d = began.BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
+    g = began.BeganGenerator(params).cuda() if params.cuda else began.BeganGenerator(params)
+    d = began.BeganDiscriminator(params).cuda() if params.cuda else began.BeganDiscriminator(params)
     g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate,
                                 betas=(params.beta1,params.beta2))
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
                                 betas=(params.beta1,params.beta2))
 
+
+    # Apply weight intialization
+    g.apply(began.weights_init)
+    d.apply(began.weights_init)
 
     # fetch loss function and metrics
     metrics = began.metrics

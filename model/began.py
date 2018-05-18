@@ -10,6 +10,16 @@ import torch
 import torch.nn as nn
 import model.model_util as model_util
 
+# From https://github.com/pytorch/examples/blob/master/dcgan/main.py
+def weights_init(m):
+    classname = m.__class__.__name__
+    if classname.find('Conv') != -1:
+        m.weight.data.normal_(0.0, 0.02)
+    elif classname.find('BatchNorm') != -1:
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
+
 class BeganGenerator(nn.Module):
     def __init__(self, params):
         super(BeganGenerator, self).__init__()
