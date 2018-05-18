@@ -161,17 +161,17 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    checkpoint=model_dir)
 
         # If best_eval, best_save_path
-        if is_best:
-           logging.info("- Found new best convergence")
-           best_b_converge = b_converge
+        # if is_best:
+        #    logging.info("- Found new best convergence")
+        #    best_b_converge = b_converge
 
            # Save best val metrics in a json file in the model directory
-           best_json_path = os.path.join(model_dir, "metrics_val_best_weights.json")
-           util.save_dict_to_json(val_metrics, best_json_path)
+           # best_json_path = os.path.join(model_dir, "metrics_val_best_weights.json")
+           # util.save_dict_to_json(val_metrics, best_json_path)
 
-        # Save latest val metrics in a json file in the model directory
-        last_json_path = os.path.join(model_dir, "metrics_val_last_weights.json")
-        util.save_dict_to_json(val_metrics, last_json_path)
+        # # Save latest val metrics in a json file in the model directory
+        # last_json_path = os.path.join(model_dir, "metrics_val_last_weights.json")
+        # util.save_dict_to_json(val_metrics, last_json_path)
 
 
 if __name__ == '__main__':
