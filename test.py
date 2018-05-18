@@ -37,7 +37,7 @@ def test(g, d, params, num):
     g.eval()
     d.eval()
 
-    z_fixed = torch.FloatTensor(num, params.h, device=params.device).normal_(0,1)
+    z_fixed = torch.FloatTensor(num, params.h).normal_(0,1).to(params.device)
     return g(z_fixed)
 
 
