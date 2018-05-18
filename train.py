@@ -17,6 +17,7 @@ import util
 import model.began as began
 import data.data_loader as data_loader
 from evaluate import evaluate
+import torchvision.utils as torch_utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/CelebA/', help="Directory containing the dataset")
@@ -55,6 +56,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     with tqdm(total=len(dataloader)) as t:
         for i, train_batch in enumerate(dataloader):
             r_img = train_batch[0]
+            
             # move to GPU if available
             if params.cuda: r_img = r_img.cuda(async=True)
 
@@ -63,7 +65,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             # compute model output and loss
             g_img = g(z_G)
-
+            
             g_img_passed = d(g_img)
             r_img_passed = d(r_img)
 
@@ -139,7 +141,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
 
         # compute number of batches in one epoch (one full pass over the training set)
         train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
-
+	
         # Evaluate for one epoch on validation set
         #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
 
