@@ -49,7 +49,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     d_loss_avg = util.RunningAverage()
     b_converge_avg = util.RunningAverage()
 
-    z_G = torch.FloatTensor(params.batch_size, params.h, device=params.device).to(params.device)
+    z_G = torch.FloatTensor(params.batch_size, params.h).to(params.device)
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
