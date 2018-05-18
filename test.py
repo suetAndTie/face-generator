@@ -16,6 +16,7 @@ import util
 import model.began as began
 import data.data_loader as data_loader
 import torchvision.utils as torch_utils
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_dir', default='experiments/began_base', help="Directory containing params.json")
@@ -59,7 +60,7 @@ if __name__ == '__main__':
 
     # Define the model
     g = began.BeganGenerator(params).cuda() if params.cuda else began.BeganGenerator(params)
-    d = bega.BeganDiscriminator(params).cuda() if params.cuda else began.BeganDiscriminator(params)
+    d = began.BeganDiscriminator(params).cuda() if params.cuda else began.BeganDiscriminator(params)
 
 
     # Reload weights from the saved file
