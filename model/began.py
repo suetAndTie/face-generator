@@ -70,6 +70,7 @@ class BeganGenerator(nn.Module):
             # Dim: batch_size x n x 128 x 128
             nn.Conv2d(self.params.n, 3, kernel_size=3, stride=1, padding=1),
             # Dim: batch_size x 3 (RGB Channels) x 128 x 128
+            nn.Tanh()
         )
 
     def forward(self, input):
@@ -184,6 +185,7 @@ class BeganDiscriminator(nn.Module):
             # Dim: batch_size x n x 128 x 128
             nn.Conv2d(self.params.n, 3, kernel_size=3, stride=1, padding=1),
             # Dim: batch_size x 3 (RGB Channels) x 128 x 128
+            nn.Tanh()
         )
 
 
