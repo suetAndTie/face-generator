@@ -49,7 +49,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     d_loss_avg = util.RunningAverage()
     b_converge_avg = util.RunningAverage()
 
-    z_G = torch.FloatTensor(params.batch_size, params.h, device=params.device)
+    z_G = torch.FloatTensor(params.batch_size, params.h, device=params.device).to(params.device)
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
@@ -60,7 +60,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             if params.cuda: r_img = r_img.cuda(async=True)
 
             # Reset the noise vectors
-            z_G.data.normal_(0,1)
+            z_G.normal_(0,1)
 
             # compute model output and loss
             g_img = g(z_G)
@@ -141,7 +141,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        b_converge train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
+        b_converge = train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
 
         # Evaluate for one epoch on validation set
         #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
@@ -185,6 +185,8 @@ if __name__ == '__main__':
     params.cuda = torch.cuda.is_available()
     if params.ngpu > 0 and params.cuda: params.device = torch.device('cuda')
     else: params.device = torch.device('cpu')
+
+    print(params.device)
 
     # Set the random seed for reproducible experiments
     torch.manual_seed(42)
