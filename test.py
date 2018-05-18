@@ -11,13 +11,13 @@ import os
 import numpy as np
 import torch
 from torch.autograd import Variable
+import torch.optim as optim
 import util
 import model.began as began
 import data.data_loader as data_loader
 import torchvision.utils as torch_utils
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='data/CelebA', help="Directory containing the dataset")
 parser.add_argument('--model_dir', default='experiments/began_base', help="Directory containing params.json")
 parser.add_argument('--restore_file', default='best', help="name of the file in --model_dir \
                      containing weights to load")
