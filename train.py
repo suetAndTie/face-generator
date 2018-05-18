@@ -141,7 +141,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
 
         # compute number of batches in one epoch (one full pass over the training set)
         train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
-	
+        
         # Evaluate for one epoch on validation set
         #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
 
