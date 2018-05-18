@@ -12,7 +12,7 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 import util
-from model.began import *
+import model.began as began
 import data.data_loader as data_loader
 
 parser = argparse.ArgumentParser()
@@ -27,7 +27,7 @@ def evaluate(g, d, dataloader, metrics, params):
     Args:
         model: (torch.nn.Module) the neural network
         loss_fn: a function that takes batch_output and batch_labels and computes the loss for the batch
-        dataloader: (DataLoader) a torch.utils.data.DataLoader object that fetches data
+        dataloader: (DataLoader) a torch.util.data.DataLoader object that fetches data
         metrics: (dict) a dictionary of functions that compute a metric using the output and labels of each batch
         params: (Params) hyperparameters
         num_steps: (int) number of batches to train on, each of size params.batch_size
@@ -40,8 +40,7 @@ def evaluate(g, d, dataloader, metrics, params):
     # summary for current eval loop
     summ = []
 
-    z_fixed = torch.FloatTensor(params.batch_size, params.h).normal_(0,1)
-    if (params.cuda): z_fixed = z_fixed.cuda()
+    z_fixed = torch.FloatTensor(params.batch_size, params.h, device=params.device).normal_(0,1)
 
     # compute metrics over the dataset
     for batch_data in dataloader:
@@ -89,17 +88,19 @@ if __name__ == '__main__':
     args = parser.parse_args()
     json_path = os.path.join(args.model_dir, 'params.json')
     assert os.path.isfile(json_path), "No json configuration file found at {}".format(json_path)
-    params = utils.Params(json_path)
+    params = util.Params(json_path)
 
     # use GPU if available
-    params.cuda = torch.cuda.is_available()     # use GPU is available
+    params.cuda = torch.cuda.is_available()
+    if params.ngpu > 0 and params.cuda: params.device = torch.device('cuda')
+    else: params.device = torch.device('cpu')
 
     # Set the random seed for reproducible experiments
     torch.manual_seed(42)
     if params.cuda: torch.cuda.manual_seed(42)
 
     # Get the logger
-    utils.set_logger(os.path.join(args.model_dir, 'evaluate.log'))
+    util.set_logger(os.path.join(args.model_dir, 'evaluate.log'))
 
     # Create the input data pipeline
     logging.info("Creating the dataset...")
@@ -110,8 +111,8 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model
-    g = BeganGenerator(params).cuda() if params.cuda else BeganGenerator(params)
-    d = BeganDiscriminator(params).cuda() if params.cuda else BeganDiscriminator(params)
+    g = began.BeganGenerator(params).to(params.device)
+    d = began.BeganDiscriminator(params).to(params.device)
 
     loss_fn = net.loss_fn
     metrics = net.metrics
@@ -119,9 +120,9 @@ if __name__ == '__main__':
     logging.info("Starting evaluation")
 
     # Reload weights from the saved file
-    utils.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
+    util.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
 
     # Evaluate
     test_metrics = evaluate(g, d, test_dl, metrics, params)
     save_path = os.path.join(args.model_dir, "metrics_test_{}.json".format(args.restore_file))
-    utils.save_dict_to_json(test_metrics, save_path)
+    util.save_dict_to_json(test_metrics, save_path)

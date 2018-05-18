@@ -49,14 +49,13 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     d_loss_avg = util.RunningAverage()
     b_converge_avg = util.RunningAverage()
 
-    z_G = torch.FloatTensor(params.batch_size, params.h)
-    if (params.cuda): z_G = z_G.cuda()
+    z_G = torch.FloatTensor(params.batch_size, params.h, device=params.device)
 
     # Use tqdm for progress bar
     with tqdm(total=len(dataloader)) as t:
         for i, train_batch in enumerate(dataloader):
             r_img = train_batch[0]
-            
+
             # move to GPU if available
             if params.cuda: r_img = r_img.cuda(async=True)
 
@@ -65,7 +64,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             # compute model output and loss
             g_img = g(z_G)
-            
+
             g_img_passed = d(g_img)
             r_img_passed = d(r_img)
 
@@ -141,7 +140,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
 
         # compute number of batches in one epoch (one full pass over the training set)
         train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
-        
+
         # Evaluate for one epoch on validation set
         #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
 
@@ -183,6 +182,8 @@ if __name__ == '__main__':
 
     # use GPU if available
     params.cuda = torch.cuda.is_available()
+    if params.ngpu > 0 and params.cuda: params.device = torch.device('cuda')
+    else: params.device = torch.device('cpu')
 
     # Set the random seed for reproducible experiments
     torch.manual_seed(42)
@@ -201,8 +202,8 @@ if __name__ == '__main__':
     logging.info("- done.")
 
     # Define the model and optimizer
-    g = began.BeganGenerator(params).cuda() if params.cuda else began.BeganGenerator(params)
-    d = began.BeganDiscriminator(params).cuda() if params.cuda else began.BeganDiscriminator(params)
+    g = began.BeganGenerator(params).to(device=params.device)
+    d = began.BeganDiscriminator(params).to(device=params.device)
     g_optimizer = optim.Adam(g.parameters(), lr=params.g_learning_rate,
                                 betas=(params.beta1,params.beta2))
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
