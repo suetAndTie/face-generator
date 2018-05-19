@@ -120,7 +120,7 @@ def save_checkpoint(state, is_best, checkpoint, epoch, params):
     if (epoch % params.save_epochs == 0 or epoch == params.num_epochs - 1):
         torch.save(state, filepath)
     if is_best:
-        shutil.save(state, os.path.join(checkpoint, 'best.pth.tar'))
+        torch.save(state, os.path.join(checkpoint, 'best.pth.tar'))
 
 
 def load_checkpoint(checkpoint, g, d, g_optimizer=None, d_optimizer=None):
@@ -136,8 +136,6 @@ def load_checkpoint(checkpoint, g, d, g_optimizer=None, d_optimizer=None):
     checkpoint = torch.load(checkpoint)
     g.load_state_dict(checkpoint['g_state_dict'])
     d.load_state_dict(checkpoint['d_state_dict'])
-
-    g.began_k = checkpoint['began_k']
 
     if g_optimizer and d_optimizer:
         g_optimizer.load_state_dict(checkpoint['g_optim_dict'])

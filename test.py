@@ -24,21 +24,19 @@ parser.add_argument('--restore_file', default='best', help="name of the file in 
 parser.add_argument('--num', default=1, type=int, help='Number of images to create')
 
 
-def test(g, d, params, num):
+def test(z, g, d):
     """Test the model on `num_steps` batches.
     Args:
+        z
         g
         d
-        params: (Params) hyperparameters
-	num: number of images to generate
     """
 
     # set model to evaluation mode
     g.eval()
     d.eval()
 
-    z_fixed = torch.FloatTensor(num, params.h).normal_(0,1).to(params.device)
-    return g(z_fixed)
+    return g(z)
 
 
 if __name__ == '__main__':
@@ -68,9 +66,11 @@ if __name__ == '__main__':
     # Reload weights from the saved file
     util.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
 
-    # test
-    f_img = test(g, d, params, args.num)
+    # create fixed z vector
+    z_fixed = torch.FloatTensor(num, params.h).normal_(0,1).to(params.device)
 
-    for i in range(f_img.shape[0]):
-        save_path = os.path.join(args.model_dir, "{}.jpg".format(i))
-        torch_utils.save_image(f_img[i], save_path)
+    # test
+    f_img = test(z_fixed, g, d, params, args.num)
+
+    save_path = os.path.join(args.model_dir, "test.jpg")
+    torch_utils.save_image(f_img, save_path)

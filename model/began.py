@@ -24,6 +24,7 @@ class BeganGenerator(nn.Module):
     def __init__(self, params):
         super(BeganGenerator, self).__init__()
         self.params = params
+        self.z_fixed = torch.FloatTensor(params.num_sample_imgs, params.h).normal_(0,1)
         self.main = nn.Sequential(
             # Dim: batch_size x h
             nn.Linear(self.params.h, self.params.n * 8 * 8),
