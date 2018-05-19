@@ -18,6 +18,7 @@ import model.began as began
 import data.data_loader as data_loader
 from evaluate import evaluate
 import torchvision.utils as torch_utils
+from test import test
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/CelebA/', help="Directory containing the dataset")
@@ -138,11 +139,17 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
     if restore_file is not None:
         restore_path = os.path.join(args.model_dir, args.restore_file + '.pth.tar')
         logging.info("Restoring parameters from {}".format(restore_path))
-        util.load_checkpoint(restore_path, g, d, g_optimizer, d_optimizer)
+        checkpoint = util.load_checkpoint(restore_path, g, d, g_optimizer, d_optimizer)
+        g.began_k = checkpoint['began_k']
+        start = checkpoint['epoch'] - 1
+    else: start = 0
 
     best_b_converge = float('inf')
 
-    for epoch in range(params.num_epochs):
+    if start == 0:
+        torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'start.jpg'))
+
+    for epoch in range(start, params.num_epochs):
         # Run one epoch
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
@@ -167,6 +174,8 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    checkpoint=model_dir,
                                    epoch=epoch,
                                    params=params)
+
+        torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'epoch{}.jpg'.format(epoch)))
 
         # If best_eval, best_save_path
         # if is_best:
@@ -220,6 +229,8 @@ if __name__ == '__main__':
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
                                 betas=(params.beta1,params.beta2))
 
+    # Put fixed noise vector to device
+    g.z_fixed.to(params.device)
 
     # Apply weight intialization
     g.apply(began.weights_init)
