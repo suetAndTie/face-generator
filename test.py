@@ -70,7 +70,7 @@ if __name__ == '__main__':
     z_fixed = torch.FloatTensor(args.num, params.h).normal_(0,1).to(params.device)
 
     # test
-    f_img = test(z_fixed, g, d, params, args.num)
+    f_img = test(z_fixed, g, d)
 
     save_path = os.path.join(args.model_dir, "test.jpg")
     torch_utils.save_image(f_img, save_path)
