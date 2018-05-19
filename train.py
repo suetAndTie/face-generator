@@ -140,12 +140,14 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         restore_path = os.path.join(args.model_dir, args.restore_file + '.pth.tar')
         logging.info("Restoring parameters from {}".format(restore_path))
         checkpoint = util.load_checkpoint(restore_path, g, d, g_optimizer, d_optimizer)
-        g.began_k = checkpoint['began_k']
+        d.began_k = checkpoint['began_k']
+        g.z_fixed = checkpoint['z_fixed']
         start = checkpoint['epoch'] - 1
     else: start = 0
 
     best_b_converge = float('inf')
 
+    # save start images
     if start == 0:
         torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'start.jpg'))
 
@@ -168,13 +170,15 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    'd_state_dict':d.state_dict(),
                                    'g_optim_dict':g_optimizer.state_dict(),
                                    'd_optim_dict':d_optimizer.state_dict(),
-                                   'began_k':d.began_k
+                                   'began_k':d.began_k,
+                                   'z_fixed':g.z_fixed
                                    },
                                    is_best=is_best,
                                    checkpoint=model_dir,
                                    epoch=epoch,
                                    params=params)
 
+        # Save images form this epoch
         torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'epoch{}.jpg'.format(epoch)))
 
         # If best_eval, best_save_path
@@ -228,9 +232,6 @@ if __name__ == '__main__':
                                 betas=(params.beta1,params.beta2))
     d_optimizer = optim.Adam(d.parameters(), lr=params.d_learning_rate,
                                 betas=(params.beta1,params.beta2))
-
-    # Put fixed noise vector to device
-    g.z_fixed.to(params.device)
 
     # Apply weight intialization
     g.apply(began.weights_init)
