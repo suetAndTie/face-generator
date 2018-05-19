@@ -142,7 +142,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         checkpoint = util.load_checkpoint(restore_path, g, d, g_optimizer, d_optimizer)
         d.began_k = checkpoint['began_k']
         g.z_fixed = checkpoint['z_fixed']
-        start = checkpoint['epoch'] - 1
+        start = checkpoint['epoch']
     else: start = 0
 
     best_b_converge = float('inf')
