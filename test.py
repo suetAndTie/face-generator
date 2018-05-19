@@ -67,7 +67,7 @@ if __name__ == '__main__':
     util.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
 
     # create fixed z vector
-    z_fixed = torch.FloatTensor(num, params.h).normal_(0,1).to(params.device)
+    z_fixed = torch.FloatTensor(args.num, params.h).normal_(0,1).to(params.device)
 
     # test
     f_img = test(z_fixed, g, d, params, args.num)
