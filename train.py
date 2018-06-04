@@ -61,7 +61,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             if params.cuda: r_img = r_img.cuda(async=True)
 
             # Reset the noise vectors
-            z_G.normal_(0,1)
+            z_G.uniform_(-1,1)
 
             ########## Train Discriminator ##########
             g_img = g(z_G)

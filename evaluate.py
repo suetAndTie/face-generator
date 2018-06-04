@@ -40,7 +40,7 @@ def evaluate(g, d, dataloader, metrics, params):
     # summary for current eval loop
     summ = []
 
-    z_fixed = torch.FloatTensor(params.batch_size, params.h).normal_(0,1).to(params.device)
+    z_fixed = torch.FloatTensor(params.batch_size, params.h).uniform_(-1,1).to(params.device)
 
     # compute metrics over the dataset
     for batch_data in dataloader:
