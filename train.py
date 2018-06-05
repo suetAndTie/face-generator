@@ -179,7 +179,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    params=params)
 
         # Save images form this epoch
-        torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'epoch{}.jpg'.format(epoch)))
+        torch_utils.save_image(test(g.z_fixed, g, d), os.path.join(args.model_dir, 'epoch{}.jpg'.format(epoch+1)))
 
         # If best_eval, best_save_path
         # if is_best:
