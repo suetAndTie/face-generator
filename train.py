@@ -28,7 +28,7 @@ parser.add_argument('--restore_file', default=None,
                     training")  # 'best' or 'train'
 
 
-def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
+def train(step, g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     """Train the model on `num_steps` batches
     Args:
         model: (torch.nn.Module) the neural network
@@ -49,6 +49,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
     g_loss_avg = util.RunningAverage()
     d_loss_avg = util.RunningAverage()
     b_converge_avg = util.RunningAverage()
+    curr_step = step
 
     z_G = torch.FloatTensor(params.batch_size, params.h).to(params.device)
 
@@ -61,7 +62,7 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             if params.cuda: r_img = r_img.cuda(async=True)
 
             # Reset the noise vectors
-            z_G.uniform_(-1,1)
+            z_G.data.uniform_(-1,1)
 
             ########## Train Discriminator ##########
             g_img = g(z_G)
@@ -113,12 +114,19 @@ def train(g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
                             converge='{:05.3f}'.format(b_converge_avg()))
             t.update()
 
+            # Apply learning rate update
+            new_lr = params.lr * 0.95 ** (curr_step // params.lr_update_step)
+            for pg in g_optimizer.param_groups + d_optimizer.param_groups:
+                pg['lr'] = new_lr
+
+            curr_step += 1
+
     # compute mean of all metrics in summary
     metrics_mean = {metric:np.mean([x[metric] for x in summ]) for metric in summ[0]}
     metrics_string = " ; ".join("{}: {:05.3f}".format(k, v) for k, v in metrics_mean.items())
     logging.info("- Train metrics: " + metrics_string)
 
-    return b_converge_avg()
+    return curr_step, b_converge_avg()
 
 def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_optimizer, metrics, params, model_dir,
                        restore_file=None):
@@ -143,7 +151,10 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         d.began_k = checkpoint['began_k']
         g.z_fixed = checkpoint['z_fixed']
         start = checkpoint['epoch']
-    else: start = 0
+        step = checkpoint['step']
+    else:
+        start = 0
+        step = 0
 
     best_b_converge = float('inf')
 
@@ -156,7 +167,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
 
         # compute number of batches in one epoch (one full pass over the training set)
-        b_converge = train(g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
+        step, b_converge = train(step, g, d, g_optimizer, d_optimizer, train_dataloader, metrics, params)
 
         # Evaluate for one epoch on validation set
         #val_metrics = evaluate(g, d, val_dataloader, metrics, params)
@@ -171,7 +182,8 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
                                    'g_optim_dict':g_optimizer.state_dict(),
                                    'd_optim_dict':d_optimizer.state_dict(),
                                    'began_k':d.began_k,
-                                   'z_fixed':g.z_fixed
+                                   'z_fixed':g.z_fixed,
+                                   'step':step
                                    },
                                    is_best=is_best,
                                    checkpoint=model_dir,
