@@ -115,9 +115,12 @@ def train(step, g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
             t.update()
 
             # Apply learning rate update
-            new_lr = params.lr * 0.95 ** (curr_step // params.lr_update_step)
-            for pg in g_optimizer.param_groups + d_optimizer.param_groups:
-                pg['lr'] = new_lr
+            g_lr = params.g_learning_rate * params.lr_update ** (curr_step // params.lr_update_step)
+            d_lr = params.d_learning_rate * params.lr_update ** (curr_step // params.lr_update_step)
+            for pg in g_optimizer.param_groups:
+                pg['lr'] = g_lr
+            for pg in d_optimizer.param_groups:
+                pg['lr'] = d_lr
 
             curr_step += 1
 
