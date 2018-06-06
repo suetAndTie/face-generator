@@ -178,7 +178,7 @@ def train_and_evaluate(g, d, train_dataloader, val_dataloader, g_optimizer, d_op
         #b_converge = val_metrics['b_converge']
         is_best = b_converge <= best_b_converge
         # Save weights
-        if (epoch % params.save_epochs == 0 or epoch == params.num_epochs - 1 or is_best):
+        if (epoch + 1 % params.save_epochs == 0 or epoch + 1 == params.num_epochs or is_best):
             util.save_checkpoint({'epoch': epoch + 1,
                                    'g_state_dict':g.state_dict(),
                                    'd_state_dict':d.state_dict(),
