@@ -69,7 +69,7 @@ def train(step, g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             g_img_passed = d(g_img.detach())
             r_img_passed = d(r_img)
-
+            
             d_loss = d.loss_fn(r_img, g_img.detach(), r_img_passed, g_img_passed)
             d_optimizer.zero_grad()
             d_loss.backward()
