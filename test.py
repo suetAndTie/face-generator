@@ -16,12 +16,14 @@ import util
 import model.began as began
 import data.data_loader as data_loader
 import torchvision.utils as torch_utils
+import inception
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_dir', default='experiments/began_base', help="Directory containing params.json")
 parser.add_argument('--restore_file', default='best', help="name of the file in --model_dir \
                      containing weights to load")
 parser.add_argument('--num', default=1, type=int, help='Number of images to create')
+parser.add_argument('--inception', default=False, type=bool, help="Boolean to calculate the inception score of the generated images")
 
 
 def test(z, g, d):
@@ -62,7 +64,6 @@ if __name__ == '__main__':
     g = began.BeganGenerator(params).to(params.device)
     d = began.BeganDiscriminator(params).to(params.device)
 
-
     # Reload weights from the saved file
     util.load_checkpoint(os.path.join(args.model_dir, args.restore_file + '.pth.tar'), g, d)
 
@@ -71,6 +72,11 @@ if __name__ == '__main__':
 
     # test
     f_img = test(z_fixed, g, d)
+
+    # Calculate inception score
+    if args.inception:
+        print ("Calculating Inception Score...")
+        print (inception.inception_score(f_img, params, batch_size=32, splits=1))
 
     save_path = os.path.join(args.model_dir, "test.jpg")
     torch_utils.save_image(f_img, save_path)
