@@ -19,6 +19,7 @@ import data.data_loader as data_loader
 from evaluate import evaluate
 import torchvision.utils as torch_utils
 from test import test
+import inception
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/CelebA/', help="Directory containing the dataset")

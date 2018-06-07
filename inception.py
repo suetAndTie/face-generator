@@ -25,6 +25,10 @@ def inception_score(imgs, params, batch_size=32, splits=1):
     """
     N = len(imgs)
 
+    # Normalize images
+    for i in range(N):
+        imgs[i] = transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))(imgs[i])
+
     # Set up dataloader
     dataloader = torch.utils.data.DataLoader(imgs, batch_size=32)
 
@@ -35,11 +39,13 @@ def inception_score(imgs, params, batch_size=32, splits=1):
     # Get predictions
     preds = np.zeros((N, 1000))
 
+    up = nn.Upsample(size=(299, 299), mode='bilinear', align_corners=False).to(params.device)
+    
     for i, batch in enumerate(dataloader, 0):
         if params.cuda: batch = batch.cuda(async=True)
         batch_size_i = batch.size()[0]
-
-        preds[i*batch_size : i*batch_size + batch_size_i] = F.softmax(inception_model(batch)).data.cpu().numpy()
+        x = up(batch)
+        preds[i*batch_size : i*batch_size + batch_size_i] = F.softmax(inception_model(x), dim=1).data.cpu().numpy()
 
     # Now compute the mean kl-div
     split_scores = []

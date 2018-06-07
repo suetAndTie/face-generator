@@ -73,10 +73,10 @@ if __name__ == '__main__':
     # test
     f_img = test(z_fixed, g, d)
 
+    save_path = os.path.join(args.model_dir, "test.jpg")
+    torch_utils.save_image(f_img, save_path)
+
     # Calculate inception score
     if args.inception:
         print ("Calculating Inception Score...")
         print (inception.inception_score(f_img, params, batch_size=32, splits=1))
-
-    save_path = os.path.join(args.model_dir, "test.jpg")
-    torch_utils.save_image(f_img, save_path)
