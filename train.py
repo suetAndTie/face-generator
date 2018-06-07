@@ -19,6 +19,7 @@ import data.data_loader as data_loader
 from evaluate import evaluate
 import torchvision.utils as torch_utils
 from test import test
+import inception
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='data/CelebA/', help="Directory containing the dataset")
@@ -69,7 +70,7 @@ def train(step, g, d, g_optimizer, d_optimizer, dataloader, metrics, params):
 
             g_img_passed = d(g_img.detach())
             r_img_passed = d(r_img)
-
+            
             d_loss = d.loss_fn(r_img, g_img.detach(), r_img_passed, g_img_passed)
             d_optimizer.zero_grad()
             d_loss.backward()
